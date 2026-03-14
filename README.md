@@ -12,16 +12,27 @@ A fast, lightweight, and modern URL shortener built with Python and FastAPI.
 
 ## Features
 
--  High-performance link shortening
--  Redis caching for lightning-fast redirects
--  API token authentication on health endpoints
--  Click tracking and analytics
--  Rate limiting to prevent abuse
--  Admin dashboard for managing links
--  Docker Compose setup — one command and you're live
--  Unit and integration tests with coverage reporting
--  Alembic database migrations
--  Custom aliases for your links
+- 🚀 High-performance link shortening
+- ⚡ Redis caching for lightning-fast redirects
+- 🔒 API token authentication on health endpoints
+- 📊 Click tracking and analytics
+- 🛡️ Rate limiting to prevent abuse
+- 🎛️ Admin dashboard for managing links
+- 🐳 Docker Compose setup — one command and you're live
+- 🧪 Unit and integration tests with coverage reporting
+- 🗄️ Alembic database migrations
+- 🔗 Custom aliases for your links
+
+## Screenshots
+
+### Homepage
+![Homepage](images/homepage.png)
+
+### URL Shortening
+![Result](images/result.png)
+
+### Admin Dashboard
+![Admin](images/admin.png)
 
 ## Tech Stack
 
@@ -68,8 +79,8 @@ shorturl/
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/shorturl.git
-cd shorturl
+git clone https://github.com/singhpratyush024-rgb/ShortURL.git
+cd ShortURL
 ```
 
 2. Create your `.env` file:
@@ -188,5 +199,3 @@ pytest tests/ -v --cov=app --cov-report=term-missing
 ## License
 
 MIT License — feel free to use this project for personal or commercial purposes.
-```
-
