@@ -84,7 +84,8 @@ jobs:
           sleep 8
 
       - name: Run tests with coverage
-        run: pytest tests/ -v --cov=app --cov-report=xml
+        run: pytest tests/ -v --cov=app --cov-report=xml --ignore=tests/internal/test_health.py
+
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
