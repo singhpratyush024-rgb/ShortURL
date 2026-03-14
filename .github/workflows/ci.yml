@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: shorturluser
+          POSTGRES_PASSWORD: ShortURL2024
+          POSTGRES_DB: shorturl
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      BASE_URL: http://localhost:8000
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: shorturl
+      POSTGRES_USER: shorturluser
+      POSTGRES_PASSWORD: ShortURL2024
+      DATABASE_URL: postgresql://shorturluser:ShortURL2024@localhost:5432/shorturl
+      REDIS_CACHE_HOST: localhost
+      REDIS_CACHE_PORT: 6379
+      REDIS_CACHE_URL: redis://localhost:6379/0
+      REDIS_CACHE_USE_SSL: 0
+      REDIS_CACHE_PASSWORD: ""
+      REDIS_CACHE_DB: 0
+      APP_API_TOKEN: test-api-token
+      ADMIN_URL: /admin-test
+      LOG_LEVEL: 30
+      SQL_LOG_LEVEL: 30
+      DB_NAME: shorturl.db
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run migrations
+        run: alembic upgrade head
+
+      - name: Start app in background
+        run: |
+          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          sleep 3
+
+      - name: Run tests with coverage
+        run: pytest tests/ -v --cov=app --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false

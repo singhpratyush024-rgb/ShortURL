@@ -1,0 +1,50 @@
+services:
+  api:
+    build: .
+    container_name: shorturl_api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=postgres
+      - REDIS_CACHE_HOST=redis-cache
+      - REDIS_CACHE_URL=redis://redis-cache:6379/0
+      - DATABASE_URL=postgresql://shorturluser:ShortURL2024@postgres:5432/shorturl
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:17
+    container_name: shorturl_postgres
+    environment:
+      POSTGRES_USER: shorturluser
+      POSTGRES_PASSWORD: ShortURL2024
+      POSTGRES_DB: shorturl
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shorturluser -d shorturl"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  redis-cache:
+    image: redis:7-alpine
+    container_name: shorturl_redis
+    volumes:
+      - ./redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
